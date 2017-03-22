@@ -1,8 +1,11 @@
+import Reflux from 'reflux';
 import React, { Component } from 'react';
+import CartStore from '../stores/CartStore';
+import ProductActions from '../actions/ProductActions';
 import CartActions from '../actions/CartActions';
 
 // Flux product view
-export default class Product extends Component {
+export default class FluxCartApp extends Reflux.Component {
   constructor(props) {
     super(props);
     this.addToCart = this.addToCart.bind(this);
@@ -10,7 +13,6 @@ export default class Product extends Component {
 
   // Add item to cart via Actions
   addToCart(event){
-    console.info(this);
     var sku = this.props.selected.sku;
     var update = {
       name: this.props.product.name,
@@ -23,7 +25,7 @@ export default class Product extends Component {
 
   // Select product variation via Actions
   selectVariant(event){
-    CartActions.selectProduct(event.target.value);
+    ProductActions.selectProduct(event.target.value);
   }
 
   // Render product View

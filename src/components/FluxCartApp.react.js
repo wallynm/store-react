@@ -1,54 +1,28 @@
 import React, { Component } from 'react';
+import Reflux from 'reflux';
 import CartStore from '../stores/CartStore';
 import ProductStore from '../stores/ProductStore';
 import FluxProduct from './FluxProduct.react';
 import FluxCart from './FluxCart.react';
+import ProductActions from '../actions/ProductActions';
 
 
-// Method to retrieve state from Stores
-function getCartState() {
-  return {
-    product: ProductStore.getProduct(),
-    selectedProduct: ProductStore.getSelected(),
-    cartItems: CartStore.getCartItems(),
-    cartCount: CartStore.getCartCount(),
-    cartTotal: CartStore.getCartTotal(),
-    cartVisible: CartStore.getCartVisible()
-  };
-}
 
 // Define main Controller View
-export default class FluxCartApp extends Component {
+export default class FluxCartApp extends Reflux.Component {
   constructor(props) {
     super(props);
-    this.state = getCartState();
-    this._onChange = this._onChange.bind(this);
+    this.stores = [CartStore, ProductStore];
   }
 
-  // Add change listeners to stores
-  componentDidMount() {
-    ProductStore.addChangeListener(this._onChange);
-    CartStore.addChangeListener(this._onChange);
-  }
-
-  // Remove change listers from stores
-  componentWillUnmount() {
-    ProductStore.removeChangeListener(this._onChange);
-    CartStore.removeChangeListener(this._onChange);
-  }
 
   // Render our child components, passing state via props
   render() {
     return (
       <div className="cart">
-        <FluxCart products={this.state.cartItems} count={this.state.cartCount} total={this.state.cartTotal} visible={this.state.cartVisible} />
-        <FluxProduct product={this.state.product} cartitems={this.state.cartItems} selected={this.state.selectedProduct} />
+        <FluxCart products={this.state.products} count={CartStore.cartCount()} total={this.state.cartTotal} visible={this.state.cartVisible} />
+        <FluxProduct product={this.state.product} cartitems={this.state.products} selected={this.state.selected} />
       </div>
     );
-  }
-
-  // Method to setState based upon Store changes
-  _onChange() {
-    this.setState(getCartState());
   }
 }

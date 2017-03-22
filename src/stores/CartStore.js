@@ -1,64 +1,37 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import CartConstants from '../constants/CartConstants';
-import EventEmitter from 'events';
+import CartActions from '../actions/CartActions';
+import Reflux from 'reflux';
 import _ from 'underscore';
 
-class CartStore extends EventEmitter {
+class CartStore extends Reflux.Store {
   constructor() {
     super();
-    const self = this;
-    self._products = {};
-    self._cartVisible = false;
-
-    AppDispatcher.register(function(payload) {
-      var action = payload.action;
-      var text;
-
-      console.info(payload.action);
-
-      switch(action.actionType) {
-        case CartConstants.CART_ADD:
-          self._add(action.sku, action.update);
-          break;
-        case CartConstants.CART_VISIBLE:
-          self._setCartVisible(action.cartVisible);
-          break;
-        case CartConstants.CART_REMOVE:
-          self._removeItem(action.sku);
-          break;
-        default:
-          return true;
-      }
-
-      self.emitChange();
-      return true;
-    });
+    this.state = {
+      cartVisible: false,
+      products: {}
+    }
+    this.listenables = CartActions;
   }
 
-  // Add product to cart
-  _add(sku, update) {
-    update.quantity = sku in this._products ? this._products[sku].quantity + 1 : 1;
-    this._products[sku] = _.extend({}, this._products[sku], update)
+  onAddToCart(sku, update){
+    let products = this.state.products;
+    update.quantity = sku in products ? products[sku].quantity + 1 : 1;
+    products[sku] = _.extend({}, products[sku], update)
+    this.setState({products});
   }
 
-  // Set cart visibility
-  _setCartVisible(cartVisible) {
-    this._cartVisible = cartVisible;
+  onRemoveFromCart(sku) {
+    let products = this.state.products;
+    delete products[sku];
+    this.setState({products});
   }
 
-  // Remove item from cart
-  _removeItem(sku) {
-    delete this._products[sku];
-  }
-
-  // Return cart items
-  getCartItems() {
-    return this._products;
+  onUpdateCartVisible(cartVisible) {
+    this.setState({cartVisible});
   }
 
   // Return # of items in cart
-  getCartCount() {
-    return Object.keys(this._products).length;
+  cartCount() {
+    return Object.keys(this.state.products).length;
   }
 
   // Return cart cost total
@@ -70,26 +43,6 @@ class CartStore extends EventEmitter {
       }
     }
     return total.toFixed(2);
-  }
-
-  // Return cart visibility state
-  getCartVisible() {
-    return this._cartVisible;
-  }
-
-  // Emit Change event
-  emitChange() {
-    this.emit('change');
-  }
-
-  // Add change listener
-  addChangeListener(callback) {
-    this.on('change', callback);
-  }
-
-  // Remove change listener
-  removeChangeListener(callback) {
-    this.removeListener('change', callback);
   }
 };
 

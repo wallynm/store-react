@@ -5,6 +5,7 @@ import _ from 'lodash';
 export default class Cart extends Component {
   constructor(props) {
     super(props);
+    console.log(props)
     this.closeCart = this.closeCart.bind(this);
     this.openCart = this.openCart.bind(this);
     this.removeFromCart = this.removeFromCart .bind(this);
@@ -22,6 +23,7 @@ export default class Cart extends Component {
   // Remove item from Cart via Actions
   removeFromCart(sku){
     CartActions.removeFromCart(sku);
+
     if(this.props.count <= 1)
       CartActions.updateCartVisible(false);
   }
