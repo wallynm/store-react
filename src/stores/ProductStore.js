@@ -7,18 +7,24 @@ import ProductData from '../utils/ProductData';
 class ProductStore extends Reflux.Store {
   constructor() {
     super();
+    const self = this;
     this.state = {
       product: {},
       selected: null
     };
     this.listenables = ProductActions;
-    this.onReceiveProduct(ProductData.load());
+    
+    window.firebase.database().ref('/products/')
+    .on('child_added', function(data) {
+      self.onReceiveProduct(data.val());
+    });
   }
 
   onReceiveProduct(data){
+    console.info(data);
     this.setState({
-      product: data[0],
-      selected: data[0].variants[0]
+      product: data,
+      selected: data.variants
     });
   }
 
